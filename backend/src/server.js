@@ -62,6 +62,22 @@ app.get('/api/health', (req, res) => {
 });
 
 
+const path = require('path');
+const fs = require('fs');
+
+// Serve static frontend files in production if dist exists
+const frontendDist = path.join(__dirname, '../../frontend/dist');
+if (fs.existsSync(frontendDist)) {
+  app.use(express.static(frontendDist));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) {
+      return next();
+    }
+    res.sendFile(path.join(frontendDist, 'index.html'));
+  });
+}
+
 app.listen(PORT, () => {
-  console.log(`🚀 StockSense Backend Server running on http://localhost:${PORT}`);
+  console.log(`🚀 StockSense Server running on port ${PORT}`);
 });
+
